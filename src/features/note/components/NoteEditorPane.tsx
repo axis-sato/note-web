@@ -1,4 +1,4 @@
-import { Box, Flex, Spacer } from "@chakra-ui/react";
+import { Box, Button, Flex, Spacer } from "@chakra-ui/react";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import dynamic from "next/dynamic";
@@ -15,6 +15,7 @@ const NoteEditorHeader = () => {
       <Flex>
         <Box>タグ</Box>
       </Flex>
+      <Button alignSelf="start">保存</Button>
     </Flex>
   );
 };

@@ -1,10 +1,34 @@
-import { Box, Button, Flex, Spacer } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  Spacer,
+  Tag,
+  TagCloseButton,
+  TagLabel,
+} from "@chakra-ui/react";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { ChangeEvent, KeyboardEvent, useState } from "react";
 
 const NoteEditorHeader = () => {
+  const [tags, setTags] = useState(["react", "javascript"]);
+  const [tag, setTag] = useState<string>("");
+  const handleTagInputKeyDown = (
+    e: KeyboardEvent<HTMLInputElement> | undefined
+  ) => {
+    if (e?.key === "Tab" && tag !== "") {
+      console.log("key", e?.key);
+      setTags((current) => [...current, tag]);
+      setTag("");
+      e.preventDefault();
+    }
+  };
+  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTag(e.target.value);
+  };
   return (
     <Flex direction="column">
       <Flex>
@@ -12,8 +36,31 @@ const NoteEditorHeader = () => {
         <Spacer />
         <Box>設定</Box>
       </Flex>
-      <Flex>
-        <Box>タグ</Box>
+      <Flex align="center">
+        <Box>
+          {tags.map((tag, i) => (
+            <Tag
+              key={i}
+              variant="solid"
+              colorScheme="gray"
+              ml={i !== 0 ? 1 : 0}
+            >
+              <TagLabel>{tag}</TagLabel>
+              <TagCloseButton />
+            </Tag>
+          ))}
+        </Box>
+        <Box w="3"></Box>
+        <Box>
+          <Input
+            border="none"
+            size="sm"
+            placeholder="タグを追加..."
+            onKeyDown={handleTagInputKeyDown}
+            onChange={handleTagInputChange}
+            value={tag}
+          />
+        </Box>
       </Flex>
       <Button alignSelf="start">保存</Button>
     </Flex>

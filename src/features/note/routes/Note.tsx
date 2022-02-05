@@ -2,15 +2,18 @@ import { Box, Flex } from "@chakra-ui/react";
 
 import MainLayout from "@/components/Layout/MainLayout";
 
+import NoteEditorPane from "../components/NoteEditorPane";
+import NoteList from "../components/NoteList";
+
 const Note = () => {
   return (
     <MainLayout title="トップ">
       <Flex h="100vh">
-        <Box w="200px" bg="blue.500">
-          Box 2
+        <Box w="230px" p="3" h="100%" bg="gray.100">
+          <NoteList />
         </Box>
-        <Box flex="1" bg="tomato">
-          Box 3
+        <Box flex="1" p="3">
+          <NoteEditorPane />
         </Box>
       </Flex>
     </MainLayout>

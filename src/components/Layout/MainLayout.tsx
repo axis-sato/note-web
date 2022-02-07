@@ -1,8 +1,9 @@
-import { Box, Center, Text } from "@chakra-ui/react";
+import { Box, Button, Center, Text } from "@chakra-ui/react";
 import Head from "next/head";
 import { ReactNode } from "react";
 
 import { APP_NAME } from "@/constants";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const SidebarContent = () => {
   return <></>;
@@ -10,6 +11,7 @@ const SidebarContent = () => {
 
 const SIDEBAR_W = "200px";
 const SideBar = () => {
+  const { signOut } = useAuth();
   return (
     <>
       <Box position="fixed" left={0} top={0} w={SIDEBAR_W} h="100%">
@@ -24,6 +26,7 @@ const SideBar = () => {
           </Text>
         </Center>
         <Box p={5} w={SIDEBAR_W} h="100%" bg="gray.800">
+          <Button onClick={() => signOut()}>サインアウト</Button>
           <SidebarContent />
         </Box>
       </Box>
@@ -42,6 +45,7 @@ const MainLayout = ({ children, title }: MainLayoutProps) => {
           {title ? `-${title}` : null}
         </title>
       </Head>
+
       <SideBar />
       <Box as="main" ml={SIDEBAR_W}>
         {children}

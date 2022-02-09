@@ -5,16 +5,20 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Skeleton,
   Table,
   Tbody,
   Td,
   Tr,
   VStack,
 } from "@chakra-ui/react";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { FiX, FiEdit } from "react-icons/fi";
 
 import range from "@/utils/range";
+
+import { useNotes } from "../hooks/useNotes";
+import { Note } from "../types";
 
 const NoteSearchForm = () => {
   const [value, setValue] = useState("");
@@ -59,13 +63,30 @@ const NoteCreateButton = () => {
   );
 };
 
-const NotesTable = () => {
+type NotesTableProps = { notes: Note[] };
+const NotesTable = ({ notes }: NotesTableProps) => {
   return (
     <Table variant="simple">
       <Tbody>
-        {range(1, 20).map((i) => (
+        {notes.map((note) => (
+          <Tr key={note.id}>
+            <Td>{note.body}</Td>
+          </Tr>
+        ))}
+      </Tbody>
+    </Table>
+  );
+};
+const NotesSkeletonTable = () => {
+  const skeletonCount = 3;
+  return (
+    <Table variant="unstyled">
+      <Tbody>
+        {range(1, skeletonCount).map((i) => (
           <Tr key={i}>
-            <Td>{i}</Td>
+            <Td>
+              <Skeleton h="30px" w="100%" />
+            </Td>
           </Tr>
         ))}
       </Tbody>
@@ -90,11 +111,21 @@ const Header = () => {
 };
 
 const NoteList = () => {
+  const { notes, noteResponse, getNotes } = useNotes();
+
+  useEffect(() => {
+    getNotes();
+  }, [getNotes]);
+
   return (
     <VStack align="stretch" h="100%">
       <Header />
       <Box overflow="auto">
-        <NotesTable />
+        {noteResponse?.status ? (
+          <NotesTable notes={notes} />
+        ) : (
+          <NotesSkeletonTable />
+        )}
       </Box>
     </VStack>
   );

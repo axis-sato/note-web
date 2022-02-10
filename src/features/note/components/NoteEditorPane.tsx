@@ -11,7 +11,13 @@ import {
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import dynamic from "next/dynamic";
-import { ChangeEvent, KeyboardEvent, useState } from "react";
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+
+import { supabase } from "@/lib/supabaseClient";
+
+import { useNote } from "../atoms/note";
+import { useNotes } from "../atoms/notes";
+import { Note } from "../types";
 
 const NoteEditorHeader = () => {
   const [tags, setTags] = useState(["react", "javascript"]);
@@ -62,28 +68,82 @@ const NoteEditorHeader = () => {
           />
         </Box>
       </Flex>
-      <Button alignSelf="start">保存</Button>
     </Flex>
   );
 };
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
-const NoteEditor = () => {
-  const [value, setValue] = useState<string | undefined>("**Hello world!!!**");
+type NoteEditorProps = {
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  onChange: (value: string | undefined) => void;
+};
+
+const NoteEditor = ({ onChange }: NoteEditorProps) => {
+  const { note } = useNote();
+  const [value, setValue] = useState<string | undefined>(note?.body);
+
+  useEffect(() => {
+    setValue(note?.body);
+  }, [note]);
+
   return (
     <Box h="100%">
-      <MDEditor value={value} onChange={setValue} height={500} />
+      <MDEditor
+        value={value}
+        onChange={(value) => {
+          setValue(value);
+          onChange(value);
+        }}
+        height={500}
+      />
     </Box>
   );
 };
 
 const NoteEditorPane = () => {
+  const { note } = useNote();
+  const { updateNotes } = useNotes();
+  const [withChanges, setWithChanges] = useState(false);
+  const body = useRef(note?.body);
+
+  useEffect(() => {
+    setWithChanges(false);
+    body.current = note?.body;
+  }, [note]);
+
+  const handleNoteChange = (value: string | undefined) => {
+    setWithChanges(note?.body !== value);
+    body.current = value;
+  };
+
+  const updateNote = async (target: Note) => {
+    const { data: newNote } = await supabase
+      .from<Note>("notes")
+      .update({ body: body.current ?? "" })
+      .eq("id", target.id)
+      .single();
+
+    if (newNote) {
+      updateNotes(newNote);
+    }
+  };
+
+  const handleSave = async () => {
+    if (note) {
+      updateNote(note);
+    }
+  };
+
   return (
     <Flex direction="column" h="100%">
       <NoteEditorHeader />
       <Box h="3" />
-      <NoteEditor />
+      <Button alignSelf="start" disabled={!withChanges} onClick={handleSave}>
+        保存
+      </Button>
+      <Box h="3" />
+      <NoteEditor onChange={handleNoteChange} />
     </Flex>
   );
 };

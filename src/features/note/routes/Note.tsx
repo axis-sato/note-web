@@ -9,7 +9,7 @@ const Note = () => {
   return (
     <MainLayout title="トップ">
       <Flex h="100vh">
-        <Box w="230px" p="3" h="100%" bg="gray.100">
+        <Box w="230px" h="100%" bg="gray.100">
           <NoteList />
         </Box>
         <Box flex="1" p="3">

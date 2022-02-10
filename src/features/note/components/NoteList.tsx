@@ -5,6 +5,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  LinkBox,
+  LinkOverlay,
   Skeleton,
   Table,
   Tbody,
@@ -17,7 +19,9 @@ import { FiX, FiEdit } from "react-icons/fi";
 
 import range from "@/utils/range";
 
-import { useNotes } from "../hooks/useNotes";
+import { useNote } from "../atoms/note";
+// import { useNotes } from "../hooks/useNotes";
+import { useNotes } from "../atoms/notes";
 import { Note } from "../types";
 
 const NoteSearchForm = () => {
@@ -65,13 +69,21 @@ const NoteCreateButton = () => {
 
 type NotesTableProps = { notes: Note[] };
 const NotesTable = ({ notes }: NotesTableProps) => {
+  const { note: globalNote, setNote } = useNote();
   return (
     <Table variant="simple">
       <Tbody>
         {notes.map((note) => (
-          <Tr key={note.id}>
-            <Td>{note.body}</Td>
-          </Tr>
+          <LinkBox as={Tr} key={note.id}>
+            <Td
+              bg={globalNote?.id === note.id ? "gray.300" : ""}
+              cursor="pointer"
+              _hover={{ bg: "gray.200" }}
+              onClick={() => setNote(note)}
+            >
+              <LinkOverlay>{note.body}</LinkOverlay>
+            </Td>
+          </LinkBox>
         ))}
       </Tbody>
     </Table>
@@ -111,7 +123,7 @@ const Header = () => {
 };
 
 const NoteList = () => {
-  const { notes, noteResponse, getNotes } = useNotes();
+  const { notes, getNotes, isLoading } = useNotes();
 
   useEffect(() => {
     getNotes();
@@ -119,13 +131,11 @@ const NoteList = () => {
 
   return (
     <VStack align="stretch" h="100%">
-      <Header />
+      <Box paddingX="3">
+        <Header />
+      </Box>
       <Box overflow="auto">
-        {noteResponse?.status ? (
-          <NotesTable notes={notes} />
-        ) : (
-          <NotesSkeletonTable />
-        )}
+        {!isLoading ? <NotesTable notes={notes} /> : <NotesSkeletonTable />}
       </Box>
     </VStack>
   );
